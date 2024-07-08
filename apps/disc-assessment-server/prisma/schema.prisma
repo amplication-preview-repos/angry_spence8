@@ -1,0 +1,69 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Customer {
+  id                String             @id @default(cuid())
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  firstName         String?
+  lastName          String?
+  email             String?
+  assessmentResults AssessmentResult[]
+  answers           Answer[]
+}
+
+model Question {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  content   String?
+  answers   Answer[]
+}
+
+model Answer {
+  id            String    @id @default(cuid())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  answerContent String?
+  question      Question? @relation(fields: [questionId], references: [id])
+  questionId    String?
+  customer      Customer? @relation(fields: [customerId], references: [id])
+  customerId    String?
+}
+
+model Report {
+  id                 String            @id @default(cuid())
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  filePath           Json?
+  assessmentResult   AssessmentResult? @relation(fields: [assessmentResultId], references: [id])
+  assessmentResultId String?
+}
+
+model AssessmentResult {
+  id         String    @id @default(cuid())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  summary    String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  customerId String?
+  reports    Report[]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  firstName String?
+  lastName  String?
+  username  String   @unique
+  email     String?  @unique
+  password  String
+  roles     Json
+}
